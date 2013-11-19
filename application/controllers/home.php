@@ -9,7 +9,7 @@ class home extends CI_Controller
 
     function index()
     {
-        $this->load->view('welcome_message');
+        $this->load->view('home');
     }
 
 }
