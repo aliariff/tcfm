@@ -51,7 +51,7 @@ class sesilogin_model extends CI_Model
         //$password = sha1($password . strrev($password));
         $call = "CALL sp_login('$username', '$password')";
         $query = $this->db->query($call);
-        //print_r($query->result());
+        
         if ($query->first_row()->kode == 0)
         {
             $this->session->sess_create();

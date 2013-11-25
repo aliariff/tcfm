@@ -1,0 +1,83 @@
+#content .container {
+	background: white; 
+	-webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+	border-radius: 10px;
+}
+
+#content {
+	padding-top: 100px;
+}
+
+.error-login {
+	color: #b94a48;
+	background-color: #f2dede;
+	border-color: #ebccd1;
+	padding: 0px;
+	margin-bottom: 0px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+}
+
+#lapangan {
+	background-image:url('../img/soccer-pitch.jpg');
+	background-size:500px 525px;
+	width:500px;
+	height:525px;
+}
+
+.player{
+	border-style:solid;
+	display:inline;
+	padding:15px;
+}
+
+.dropo1 {
+	display:inline;
+	margin:200px;
+	background-color:powderBlue;
+}
+.dropo2 {
+	display:inline;
+	margin:80px;
+	background-color:powderBlue;
+}
+.dropo3 {
+	display:inline;
+	margin:30px;
+	background-color:powderBlue;
+}
+.dropo4 {
+	display:inline;
+	margin:10px;
+	background-color:powderBlue;
+}
+.dropo5 {
+	display:inline;
+	margin:-3px;
+	background-color:powderBlue;
+}
+
+.logout {
+	padding-top:20px;
+}
+
+.menu {
+	padding-top:5px;
+}
+
+.droppable-active {
+
+     opacity: 1.0;
+
+     background-color:yellow;
+
+}
+
+.droppable-hover {
+
+     outline: 1px dotted black;
+
+     background-color:white;
+
+}
