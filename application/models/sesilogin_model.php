@@ -57,11 +57,41 @@ class sesilogin_model extends CI_Model
             $this->session->sess_create();
             $this->session->set_userdata('username', $username);
             $this->session->set_userdata('secret_key', 'randomkey');
+            $query->next_result();
+            $query->free_result();
             return true;
         }
         else
         {
             $this->tambah_percobaan_login();
+            $query->next_result();
+            $query->free_result();
+            return false;
+        }
+    }
+
+    function login_admin($username, $password)
+    {
+        $username = $this->db->escape_str($username);
+        $password = $this->db->escape_str($password);
+        //$password = sha1($password . strrev($password));
+        $call = "CALL sp_login_admin('$username', '$password')";
+        $query = $this->db->query($call);
+        
+        if ($query->first_row()->kode == 0)
+        {
+            $this->session->sess_create();
+            $this->session->set_userdata('username', $username);
+            $this->session->set_userdata('secret_key', 'adminkey');
+            $query->next_result();
+            $query->free_result();
+            return true;
+        }
+        else
+        {
+            $this->tambah_percobaan_login();
+            $query->next_result();
+            $query->free_result();
             return false;
         }
     }
@@ -76,6 +106,18 @@ class sesilogin_model extends CI_Model
         if ($this->session->userdata('username') && $this->session->userdata('secret_key'))
         {
             if ($this->session->userdata('secret_key') == 'randomkey')
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function apakah_login_admin()
+    {
+        if ($this->session->userdata('username') && $this->session->userdata('secret_key'))
+        {
+            if ($this->session->userdata('secret_key') == 'adminkey')
             {
                 return true;
             }

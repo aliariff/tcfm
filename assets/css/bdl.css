@@ -27,39 +27,43 @@
 }
 
 .player{
-	border-style:solid;
 	display:inline;
 	padding:15px;
 }
 
 .dropo1 {
 	display:inline;
-	margin:200px;
-	background-color:powderBlue;
+	margin:41.5%;
+	//background-color:powderBlue;
 }
 .dropo2 {
 	display:inline;
-	margin:80px;
-	background-color:powderBlue;
+	margin:16.5%;
+	//background-color:powderBlue;
 }
 .dropo3 {
 	display:inline;
-	margin:30px;
-	background-color:powderBlue;
+	margin:8.2%;
+	//background-color:powderBlue;
 }
 .dropo4 {
 	display:inline;
-	margin:10px;
-	background-color:powderBlue;
+	margin:4%;
+	//background-color:powderBlue;
 }
 .dropo5 {
 	display:inline;
-	margin:-3px;
-	background-color:powderBlue;
+	margin:1.59%;
+	//background-color:powderBlue;
 }
 
 .logout {
-	padding-top:20px;
+	padding-top:0px;
+}
+
+.avatar {
+	padding-top:5px;
+	margin-right: -8%;
 }
 
 .menu {
@@ -67,17 +71,22 @@
 }
 
 .droppable-active {
-
      opacity: 1.0;
-
      background-color:yellow;
-
 }
 
 .droppable-hover {
-
      outline: 1px dotted black;
-
      background-color:white;
-
 }
+
+div.dtable {
+padding-left: 19%;
+display:table;}
+div.dtable div.drow {display:table-row;}
+div.dtable div.drow span {display:table-cell;padding:5px 5px 5px 5px;}
+div.dtable div.drow span.shead {font-weight:bold;text-align:right;vertical-align:top;padding-top:8px;}
+div.dtable div.drow span.shead2,div.dtable div.drow span.name {font-weight:bold;text-align:right;vertical-align:top;}
+div.dtable div.drow span input {margin:0px;}
+div.dtable div.drow span textarea {margin:0px;}
+div.dtable div.drow span select {margin:0px;}

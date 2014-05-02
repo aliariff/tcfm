@@ -20,7 +20,7 @@
 						<input type="password" class="form-control" placeholder="Password" id="password" name="password">
 
 						<label class="control-label">Password (Tulis Ulang)</label>
-						<input type="password" class="form-control" id="repassword" placeholder="Re-Password" id="repassword" name="repassword">
+						<input type="password" class="form-control" placeholder="Re-Password" id="repassword" name="repassword">
 						<span class="label label-danger" id="label1"></span>
 						<br/><br/>
 						<label>
@@ -87,7 +87,7 @@
 					$("#syaratketentuan_modal .modal-body").html(data);
 				});
 				return false;
-			})
+			});
 
 			$("#kebijakanprivasi").click(function() {
 				$("#kebijakanprivasi_modal").modal();
@@ -95,7 +95,7 @@
 					$("#kebijakanprivasi_modal .modal-body").html(data);
 				});
 				return false;
-			})
+			});
 
 			$('#register_form').submit(function() {
 				$('#register_btn').button('loading');
@@ -117,6 +117,6 @@
 						
 					}, "json");
 					return false;
-				})
+				});
 		});
 	</script>

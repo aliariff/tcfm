@@ -1,214 +1,184 @@
-<?php
-  $ctr=1;
-  $line = explode("-", $data->user_info->nama_formasi);
-?>
-<div id="content">
 <div class="container">
-  <div class="row clearfix">
-    <div class="col-md-6 column">
-      <div id="lapangan">
-<br/><br/><br/>
-<?php
-  for($i=0; $i<$line[2]; $i++)
-  {
-?>
-  <div class="dropo<?php echo $line[2]; ?>">
-  <div id="<?php echo $ctr; $ctr++; ?>" class="player">
-    <?php echo "player $ctr"; ?>
-  </div>
-  </div>
-<?php
-  }
-?>
+	<div class="row clearfix">
+		<div class="col-md-2 column">
+			<img width="100%" src="<?php echo base_url('assets/img').'/limited.jpg';?>" class="img-rounded" /> 
+			<br/><br/>
+			<a href="<?php echo base_url('user/limited'); ?>" class="btn btn-info btn-block" type="button">Limited This Week</a>
+		</div>
+		<div class="col-md-6 column">
+			<a href="<?php echo base_url('user/timsaya'); ?>" class="label label-info">Rating Tim Saya</a>
+			<br/><br/>
+			<div class="progress tooltipp" id="progress_rating" title="<?php echo $data->user_info->rating ?>">
+				<div class="progress-bar">
+				</div>
+			</div> 
 
-
-<br/><br/><br/><br/><br/><br/><br/><br/><br/>
-
-<?php
-  for($i=0; $i<$line[1]; $i++)
-  {
-?>
-  <div class="dropo<?php echo $line[1]; ?>">
-  <div id="<?php echo $ctr; $ctr++; ?>" class="player">
-    <?php echo "player $ctr-1"; ?>
-  </div>
-  </div>
-<?php
-  }
-?>
-
-<br/><br/><br/><br/><br/><br/><br/>
-
-<?php
-  for($i=0; $i<$line[0]; $i++)
-  {
-?>
-  <div class="dropo<?php echo $line[0]; ?>">
-  <div id="<?php echo $ctr; $ctr++; ?>" class="player">
-    <?php echo "player $ctr-1"; ?>
-  </div>
-  </div>
-<?php
-  }
-?>
-
-<br/><br/><br/><br/><br/>
-
-<div class="dropo1">
-  <div id="player11" class="player">
-    player 11
-  </div>
+			<a href="<?php echo base_url('user/latihan'); ?>" class="label label-info">Latihan</a>
+			<br/><br/>
+			<div class="progress tooltipp" id="progress_training" title="<?php echo $data->user_info->kekompakan ?>">
+				<div class="progress-bar">
+				</div>
+			</div>
+			<div class="well">
+				<div class="row">
+		        <label class="col-sm-8"><span class="glyphicon glyphicon-info-sign"></span> Info Tim Saya</label>
+		        </div>
+				<div class="row clearfix">
+					<div class="col-md-6 column">
+						<label>Nama Tim</label><br/>
+						<label>Nama Stadion</label><br/>
+						<label>Level Stadion</label><br/>
+						<label>Email</label><br/>
+						<label>Nama Formasi</label><br/>
+						<label>Nama Liga</label><br/>
+					</div>
+					<div class="col-md-6 column">
+						<label>: <?php echo $data->user_info->nama_tim; ?></label><br/>
+						<label>: <?php echo $data->user_info->nama_stadion; ?></label><br/>
+						<label>: <?php echo $data->user_info->stadion_id_stadion; ?></label><br/>
+						<label>: <?php echo $data->user_info->email; ?></label><br/>
+						<label>: <?php echo $data->user_info->nama_formasi; ?></label><br/>
+						<label>: <?php echo $data->user_info->nama_liga; ?></label><br/>
+					</div>
+				</div>
+				<br/>
+				<button type="button" class="btn btn-primary" id="ubah_profil_btn">Ubah Profil</button>
+				<button type="button" class="btn btn-primary" id="ubah_password_btn">Ubah Password</button>
+			</div>
+		</div>
+		<div class="col-md-4 column">
+			<img width="100%" src="<?php echo base_url('assets/logo').'/ongoing_events.bmp';?>" class="img-rounded" /> 
+			<br/><br/>
+			<div class="panel-group" id="panel-396524">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						 <a class="panel-title" data-toggle="collapse" data-parent="#panel-396524" href="#panel-element-17612">
+						 	Uang Lebih Untuk 50 Pendaftar Pertama!
+						 </a>
+					</div>
+					<div id="panel-element-17612" class="panel-collapse collapse in">
+						<div class="panel-body">
+							50 Pendaftar Pertama pada TCFM akan mendapatkan Uang awalan 55.000!
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
-</div>
 
-    </div>
-    <div class="col-md-6 column">
-      <div style="height:200px;overflow:auto;">
-        <table class="table table-hover table-condensed" id="tabel_pemain">
-        <thead>
-          <tr>
-            <th>
-              #
-            </th>
-            <th>
-              Nama
-            </th>
-            <th>
-              Rating
-            </th>
-            <th>
-              Posisi
-            </th>
-          </tr>
-        </thead>
-        <tbody id="body_tabel_pemain">
-          <?php
-            foreach ($data->daftar_pemain_user as $pemain) {
-          ?>
-          <tr name="<?php echo $pemain->id_user_pemain; ?>" id="<?php echo $pemain->id_user_pemain; ?>">
-            <td>
-              <?php echo $pemain->id_user_pemain; ?>
-            </td>
-            <td>
-              <?php echo $pemain->nama_pemain; ?>
-            </td>
-            <td>
-              <?php echo $pemain->rating; ?>
-            </td>
-            <td>
-              <?php echo $pemain->posisi; ?>
-            </td>
-          </tr>
-          <?php 
-            }
-          ?>
-        </tbody>
-      </table>
+<div id="ubah_profil_modal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-body">
       </div>
-      <br/>
-      <div class="well">
-        <div class="row">
-        <label class="col-sm-8"><span class="glyphicon glyphicon-info-sign"></span> Detail Info</label>
-        </div>
+      
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
-        <div class="row">
-        <label class="col-sm-2">Nama</label>
-        <label class="col-sm-5" id="nama_pemain">: </label>
-
-        <label class="col-sm-2">Attack</label>
-        <label class="col-sm-3" id="att">: </label>
-        </div>
-
-        <div class="row">
-        <label class="col-sm-2">Tim Asal</label>
-        <label class="col-sm-5" id="tim_asal">: </label>
-
-        <label class="col-sm-2">Defense</label>
-        <label class="col-sm-3" id="def">: </label>
-        </div>
-
-        <div class="row">
-        <label class="col-sm-2">Posisi</label>
-        <label class="col-sm-5" id="posisi">: </label>
-
-        <label class="col-sm-2">Speed</label>
-        <label class="col-sm-3" id="speed">: </label>
-        </div>
-
-        <div class="row">
-        <label class="col-sm-2">Rating</label>
-        <label class="col-sm-5" id="rating">: </label>
-
-        <label class="col-sm-2">Stamina</label>
-        <label class="col-sm-3" id="stamina">: </label>
-        </div>
-        <div class="row">
-            <div class="col-sm-4">
-            </div>
-            <img alt="140x140" id="foto_pemain" src="<?php echo base_url('assets/img/no-pic.png'); ?>" />
-        </div>
-
+<div id="ubah_password_modal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-body">
       </div>
-    </div>
-  </div>
-</div>
-</div>
+      
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
-<script type="text/javascript" src="<?php echo base_url('assets/js/jquery.tableSelect.js'); ?>"></script>
 <script type="text/javascript">
-      $(document).ready(function() {
-        $('#tabel_pemain').tableSelect({
-          onClick: function(row) {
-            $.post('<?php echo base_url('helper/detail_pemain')?>', {id:$(row).children('td').eq(0).html()}, function(data){
-              if(data.sukses == true)
-              {
-                $('#nama_pemain').text(": " + data.pesan.nama_pemain);
-                $('#tim_asal').text(": " + data.pesan.tim_asal);
-                $('#posisi').text(": " + data.pesan.posisi);
-                $('#rating').text(": " + data.pesan.rating);
-                $('#att').text(": " + data.pesan.att);
-                $('#def').text(": " + data.pesan.def);
-                $('#speed').text(": " + data.pesan.speed);
-                $('#stamina').text(": " + data.pesan.stamina);
-                $("#foto_pemain").attr("src", "<?php echo base_url('assets/img'); ?>" + "/" + data.pesan.foto_pemain);
-              }
-            }, "json");
-          },
-          onChange: function(row) {
-            $.post('<?php echo base_url('helper/detail_pemain')?>', {id:$(row).children('td').eq(0).html()}, function(data){
-              if(data.sukses == true)
-              {
-                $('#nama_pemain').text(": " + data.pesan.nama_pemain);
-                $('#tim_asal').text(": " + data.pesan.tim_asal);
-                $('#posisi').text(": " + data.pesan.posisi);
-                $('#rating').text(": " + data.pesan.rating);
-                $('#att').text(": " + data.pesan.att);
-                $('#def').text(": " + data.pesan.def);
-                $('#speed').text(": " + data.pesan.speed);
-                $('#stamina').text(": " + data.pesan.stamina);
-                $("#foto_pemain").attr("src", "<?php echo base_url('assets/img'); ?>" + "/" + data.pesan.foto_pemain);
-              }
-            }, "json");
-          }
-        });
+	jQuery(document).ready(function () {
+		$('.tooltipp').tooltip({placement: 'top'});
 
-        $("#body_tabel_pemain tr").draggable({
-                helper: "clone"
-        });
-        
-        <?php for($i=1; $i<=5; $i++) { ?>
-        $( ".dropo<?php echo $i; ?>" ).droppable({
-          activeClass: 'droppable-active',
-          hoverClass: 'droppable-hover',
-          drop: function( event, ui ) {
-            var $el = ui.draggable;
-            var name = $el.attr("name");
-            alert(name);
-            $( this )
-              .find( "div" )
-                .html( "aa!" );
-          }
-        });
-        <?php }?>
-      });
+		var loaded = <?php echo $data->user_info->kekompakan ?>;
+		var total = <?php echo $data->user_info->kekompakan_maksimal ?>;
+		var progress = parseInt(loaded / total * 100, 10);
+		if (progress<=25)
+		{
+			$('#progress_training').children().removeClass('progress-bar-success');
+			$('#progress_training').children().removeClass('progress-bar-info');
+			$('#progress_training').children().removeClass('progress-bar-warning');
+			$('#progress_training').children().addClass('progress-bar-danger');
+		}
+		else if (progress<=50)
+		{
+			$('#progress_training').children().removeClass('progress-bar-success');
+			$('#progress_training').children().removeClass('progress-bar-info');
+			$('#progress_training').children().removeClass('progress-bar-danger');
+			$('#progress_training').children().addClass('progress-bar-warning');
+		}
+		else if (progress<=75)
+		{
+			$('#progress_training').children().removeClass('progress-bar-success');
+			$('#progress_training').children().removeClass('progress-bar-danger');
+			$('#progress_training').children().removeClass('progress-bar-warning');
+			$('#progress_training').children().addClass('progress-bar-info');
+		}
+		else
+		{
+			$('#progress_training').children().removeClass('progress-bar-danger');
+			$('#progress_training').children().removeClass('progress-bar-info');
+			$('#progress_training').children().removeClass('progress-bar-warning');
+			$('#progress_training').children().addClass('progress-bar-success');
+		}
+        $('#progress_training .progress-bar').css(
+            'width',
+            progress + '%'
+        );
+
+        var loaded = <?php echo $data->user_info->rating ?>;
+		var total = 100;
+		var progress = parseInt(loaded / total * 100, 10);
+		if (progress<=25)
+		{
+			$('#progress_rating').children().removeClass('progress-bar-success');
+			$('#progress_rating').children().removeClass('progress-bar-info');
+			$('#progress_rating').children().removeClass('progress-bar-warning');
+			$('#progress_rating').children().addClass('progress-bar-danger');
+		}
+		else if (progress<=50)
+		{
+			$('#progress_rating').children().removeClass('progress-bar-success');
+			$('#progress_rating').children().removeClass('progress-bar-info');
+			$('#progress_rating').children().removeClass('progress-bar-danger');
+			$('#progress_rating').children().addClass('progress-bar-warning');
+		}
+		else if (progress<=75)
+		{
+			$('#progress_rating').children().removeClass('progress-bar-success');
+			$('#progress_rating').children().removeClass('progress-bar-danger');
+			$('#progress_rating').children().removeClass('progress-bar-warning');
+			$('#progress_rating').children().addClass('progress-bar-info');
+		}
+		else
+		{
+			$('#progress_rating').children().removeClass('progress-bar-danger');
+			$('#progress_rating').children().removeClass('progress-bar-info');
+			$('#progress_rating').children().removeClass('progress-bar-warning');
+			$('#progress_rating').children().addClass('progress-bar-success');
+		}
+        $('#progress_rating .progress-bar').css(
+            'width',
+            progress + '%'
+        );
+
+		$("#ubah_profil_btn").click(function() {
+			$("#ubah_profil_modal").modal();
+			$.get("<?php echo base_url('user/dasbor/ubah_profil'); ?>", null, function(data) {
+				$("#ubah_profil_modal .modal-body").html(data);
+			});
+			return false;
+		});
+
+		$("#ubah_password_btn").click(function() {
+			$("#ubah_password_modal").modal();
+			$.get("<?php echo base_url('user/dasbor/ubah_password'); ?>", null, function(data) {
+				$("#ubah_password_modal .modal-body").html(data);
+			});
+			return false;
+		});
+	});
 </script>

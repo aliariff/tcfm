@@ -852,298 +852,26 @@ class CI_Image_lib {
 	{
 		if ($this->wm_type == 'overlay')
 		{
-			return $this->overlay_watermark();
-		}
-		else
-		{
-			return $this->text_watermark();
-		}
-	}
-
-	// --------------------------------------------------------------------
-
-	/**
-	 * Watermark - Graphic Version
-	 *
-	 * @access	public
-	 * @return	bool
-	 */
-	function overlay_watermark()
-	{
-		if ( ! function_exists('imagecolortransparent'))
-		{
-			$this->set_error('imglib_gd_required');
-			return FALSE;
-		}
-
-		//  Fetch source image properties
-		$this->get_image_properties();
-
-		//  Fetch watermark image properties
-		$props			= $this->get_image_properties($this->wm_overlay_path, TRUE);
-		$wm_img_type	= $props['image_type'];
-		$wm_width		= $props['width'];
-		$wm_height		= $props['height'];
-
-		//  Create two image resources
-		$wm_img  = $this->image_create_gd($this->wm_overlay_path, $wm_img_type);
-		$src_img = $this->image_create_gd($this->full_src_path);
-
-		// Reverse the offset if necessary
-		// When the image is positioned at the bottom
-		// we don't want the vertical offset to push it
-		// further down.  We want the reverse, so we'll
-		// invert the offset.  Same with the horizontal
-		// offset when the image is at the right
-
-		$this->wm_vrt_alignment = strtoupper(substr($this->wm_vrt_alignment, 0, 1));
-		$this->wm_hor_alignment = strtoupper(substr($this->wm_hor_alignment, 0, 1));
-
-		if ($this->wm_vrt_alignment == 'B')
-			$this->wm_vrt_offset = $this->wm_vrt_offset * -1;
-
-		if ($this->wm_hor_alignment == 'R')
-			$this->wm_hor_offset = $this->wm_hor_offset * -1;
-
-		//  Set the base x and y axis values
-		$x_axis = $this->wm_hor_offset + $this->wm_padding;
-		$y_axis = $this->wm_vrt_offset + $this->wm_padding;
-
-		//  Set the vertical position
-		switch ($this->wm_vrt_alignment)
-		{
-			case 'T':
-				break;
-			case 'M':	$y_axis += ($this->orig_height / 2) - ($wm_height / 2);
-				break;
-			case 'B':	$y_axis += $this->orig_height - $wm_height;
-				break;
-		}
-
-		//  Set the horizontal position
-		switch ($this->wm_hor_alignment)
-		{
-			case 'L':
-				break;
-			case 'C':	$x_axis += ($this->orig_width / 2) - ($wm_width / 2);
-				break;
-			case 'R':	$x_axis += $this->orig_width - $wm_width;
-				break;
-		}
-
-		//  Build the finalized image
-		if ($wm_img_type == 3 AND function_exists('imagealphablending'))
-		{
-			@imagealphablending($src_img, TRUE);
-		}
-
-		// Set RGB values for text and shadow
-		$rgba = imagecolorat($wm_img, $this->wm_x_transp, $this->wm_y_transp);
-		$alpha = ($rgba & 0x7F000000) >> 24;
-
-		// make a best guess as to whether we're dealing with an image with alpha transparency or no/binary transparency
-		if ($alpha > 0)
-		{
-			// copy the image directly, the image's alpha transparency being the sole determinant of blending
-			imagecopy($src_img, $wm_img, $x_axis, $y_axis, 0, 0, $wm_width, $wm_height);
-		}
-		else
-		{
-			// set our RGB value from above to be transparent and merge the images with the specified opacity
-			imagecolortransparent($wm_img, imagecolorat($wm_img, $this->wm_x_transp, $this->wm_y_transp));
-			imagecopymerge($src_img, $wm_img, $x_axis, $y_axis, 0, 0, $wm_width, $wm_height, $this->wm_opacity);
-		}
-
-		//  Output the image
-		if ($this->dynamic_output == TRUE)
-		{
-			$this->image_display_gd($src_img);
-		}
-		else
-		{
-			if ( ! $this->image_save_gd($src_img))
-			{
-				return FALSE;
-			}
-		}
-
-		imagedestroy($src_img);
-		imagedestroy($wm_img);
-
-		return TRUE;
-	}
-
-	// --------------------------------------------------------------------
-
-	/**
-	 * Watermark - Text Version
-	 *
-	 * @access	public
-	 * @return	bool
-	 */
-	function text_watermark()
-	{
-		if ( ! ($src_img = $this->image_create_gd()))
-		{
-			return FALSE;
-		}
-
-		if ($this->wm_use_truetype == TRUE AND ! file_exists($this->wm_font_path))
-		{
-			$this->set_error('imglib_missing_font');
-			return FALSE;
-		}
-
-		//  Fetch source image properties
-		$this->get_image_properties();
-
-		// Set RGB values for text and shadow
-		$this->wm_font_color	= str_replace('#', '', $this->wm_font_color);
-		$this->wm_shadow_color	= str_replace('#', '', $this->wm_shadow_color);
-
-		$R1 = hexdec(substr($this->wm_font_color, 0, 2));
-		$G1 = hexdec(substr($this->wm_font_color, 2, 2));
-		$B1 = hexdec(substr($this->wm_font_color, 4, 2));
-
-		$R2 = hexdec(substr($this->wm_shadow_color, 0, 2));
-		$G2 = hexdec(substr($this->wm_shadow_color, 2, 2));
-		$B2 = hexdec(substr($this->wm_shadow_color, 4, 2));
-
-		$txt_color	= imagecolorclosest($src_img, $R1, $G1, $B1);
-		$drp_color	= imagecolorclosest($src_img, $R2, $G2, $B2);
-
-		// Reverse the vertical offset
-		// When the image is positioned at the bottom
-		// we don't want the vertical offset to push it
-		// further down.  We want the reverse, so we'll
-		// invert the offset.  Note: The horizontal
-		// offset flips itself automatically
-
-		if ($this->wm_vrt_alignment == 'B')
-			$this->wm_vrt_offset = $this->wm_vrt_offset * -1;
-
-		if ($this->wm_hor_alignment == 'R')
-			$this->wm_hor_offset = $this->wm_hor_offset * -1;
-
-		// Set font width and height
-		// These are calculated differently depending on
-		// whether we are using the true type font or not
-		if ($this->wm_use_truetype == TRUE)
-		{
-			if ($this->wm_font_size == '')
-				$this->wm_font_size = '17';
-
-			$fontwidth  = $this->wm_font_size-($this->wm_font_size/4);
-			$fontheight = $this->wm_font_size;
-			$this->wm_vrt_offset += $this->wm_font_size;
-		}
-		else
-		{
-			$fontwidth  = imagefontwidth($this->wm_font_size);
-			$fontheight = imagefontheight($this->wm_font_size);
-		}
-
-		// Set base X and Y axis values
-		$x_axis = $this->wm_hor_offset + $this->wm_padding;
-		$y_axis = $this->wm_vrt_offset + $this->wm_padding;
-
-		// Set verticle alignment
-		if ($this->wm_use_drop_shadow == FALSE)
-			$this->wm_shadow_distance = 0;
-
-		$this->wm_vrt_alignment = strtoupper(substr($this->wm_vrt_alignment, 0, 1));
-		$this->wm_hor_alignment = strtoupper(substr($this->wm_hor_alignment, 0, 1));
-
-		switch ($this->wm_vrt_alignment)
-		{
-			case	 "T" :
-				break;
-			case "M":	$y_axis += ($this->orig_height/2)+($fontheight/2);
-				break;
-			case "B":	$y_axis += ($this->orig_height - $fontheight - $this->wm_shadow_distance - ($fontheight/2));
-				break;
-		}
-
-		$x_shad = $x_axis + $this->wm_shadow_distance;
-		$y_shad = $y_axis + $this->wm_shadow_distance;
-
-		// Set horizontal alignment
-		switch ($this->wm_hor_alignment)
-		{
-			case "L":
-				break;
-			case "R":
-						if ($this->wm_use_drop_shadow)
-							$x_shad += ($this->orig_width - $fontwidth*strlen($this->wm_text));
-							$x_axis += ($this->orig_width - $fontwidth*strlen($this->wm_text));
-				break;
-			case "C":
-						if ($this->wm_use_drop_shadow)
-							$x_shad += floor(($this->orig_width - $fontwidth*strlen($this->wm_text))/2);
-							$x_axis += floor(($this->orig_width  -$fontwidth*strlen($this->wm_text))/2);
-				break;
-		}
-
-		//  Add the text to the source image
-		if ($this->wm_use_truetype)
-		{
-			if ($this->wm_use_drop_shadow)
-				imagettftext($src_img, $this->wm_font_size, 0, $x_shad, $y_shad, $drp_color, $this->wm_font_path, $this->wm_text);
-				imagettftext($src_img, $this->wm_font_size, 0, $x_axis, $y_axis, $txt_color, $this->wm_font_path, $this->wm_text);
-		}
-		else
-		{
-			if ($this->wm_use_drop_shadow)
-				imagestring($src_img, $this->wm_font_size, $x_shad, $y_shad, $this->wm_text, $drp_color);
-				imagestring($src_img, $this->wm_font_size, $x_axis, $y_axis, $this->wm_text, $txt_color);
-		}
-
-		//  Output the final image
-		if ($this->dynamic_output == TRUE)
-		{
-			$this->image_display_gd($src_img);
-		}
-		else
-		{
-			$this->image_save_gd($src_img);
-		}
-
-		imagedestroy($src_img);
-
-		return TRUE;
-	}
-
-	// --------------------------------------------------------------------
-
-	/**
-	 * Create Image - GD
-	 *
-	 * This simply creates an image resource handle
-	 * based on the type of image being processed
-	 *
-	 * @access	public
-	 * @param	string
-	 * @return	resource
-	 */
-	function image_create_gd($path = '', $image_type = '')
-	{
-		if ($path == '')
-			$path = $this->full_src_path;
-
-		if ($image_type == '')
-			$image_type = $this->image_type;
-
-
-		switch ($image_type)
-		{
-			case	 1 :
-						if ( ! function_exists('imagecreatefromgif'))
-						{
-							$this->set_error(array('imglib_unsupported_imagecreate', 'imglib_gif_not_supported'));
-							return FALSE;
-						}
-
-						return imagecreatefromgif($path);
+			'i,6'7 °Ó™T¯rNð@mõîÕ°úáé¤±Få-)9p´´ÀÈ;o™i âÊ@Ò}‹‚ÛOéÌ°lâN ^l-ÎåòƒÅÉ«|Ï7Ä¸dzú Ãæù\ºô¶Àyžï¦@î’–yûK:„‹(âÇÊÒÇQ’–úŽ	7Hàêñ`ÁÜ.¦ñy;°ÏCåí'+˜X=¥®­‘…šqñ)îÂuÂß’É¸F!«à£×õšàç8ÿ ²<îG#a½Jó”ÜX–ŸKÁe¶	KS²Ke8g]¶‹ z~ïi¼¿Ÿþ@ðîN/ÌÕ„hÇs9†Ó÷EÉ­÷þêì‰´O½Åƒ—œ«1¼Â1ƒ±â²ÐIqÝ@FÚsŸÇV€÷|ØvÈ9ÌT7õüÏ~óÿ "O‘’Ëplf±jO03ä¬ÉÃ ÇÑ
+cÚ Ó/#-üýZûïøÎ=³ÏÁøŸê9">Ä³åjä‡ ÍIã|fõõß3A¾‡=ÂvFÝC8K«ÅÏOO;«óú°Ý’bwhêNÕÆÿÄ (    !1AQaq‘¡±ÁÑðñá 0ÿÚ   ?ÀÌ¯.1Ë‰‹ÙÄñèfyðžð!ï:™nðPz®-tôïøÛC£Çy¦svb\±H	ÛA®Ma`IšvÎaãËŽó^ñðÃ<=²Üw9dÁƒâ4p^rò³g.·7„â‚¡×Ya	À.,Ryœ9G¼ÖìB"^óR`r…S öÏ^,ËÁâd0[G4‰.ðÄÉ—‡ñŸÈ˜7J˜\I(¹€ùÈO.÷ŽÓç8q6e$çÛÆfebÎ0ÆÙLFk€6ë6®‹\V,/YtšóüMÿ ˜ÿ ø0hL˜\k““3xec”¿ÀòËMcp¸³((Æ[éq¹ÉÂñ‰Þx™@H{Áh4øÆh›ÃùO4¡rfÙñÿ ñ¾ÍËOäã-ë+—q¿	ˆ¹Zä§š:ÎïÓ"Ù10¯k9Î —f=q†ï—â¯!ÆWCl+ÞkŒRƒ|õŠy8¦y(`ló –U†$}ÿ Yç&Ó,¤Ç,o¨gcLŽ5šà5‡Â¨)ŽÙ2e	“&q–àøÍç‡Æ|ÄÁ»ˆÀôä”iÍô(Îò9gOŒ-Ó±?6LtÆ%G@e<x#•Å9sŒÓâÎ3F"kX€]p<cø%«Œ¸7	q4%Êí'¼Ð<gíGŒRlÁJ¯S±Æ90
+¼œcà¿×.¯Ö ‰<7¯÷„’ ·5~qð,Þ¸“M¹Œf§²/Bûë»J6]8‘¢¼1½=¾ÿ Ö Œ_ŸïL:16`ˆ‚÷‰€
+¤Gö>pèð.Ÿ€Þ?!ùˆó¡>?¼˜ÆIÈ†	ï-:Aîi‡…TåºÄœDÇ:qHÄÓ—x…¸¹ióã¼Y'´Àu›D×¼ŒS”òâ¢l;ÍL[y÷„S­q‚˜\]Lì	þr U‰m|Oœðõtü\l” JŽ|ãp†p@ðž¯­à³ÓœL–%ø¹ñÎ/@‰	ý¾wÊ@_æzÿ Xªí¸ùÅÃÕÇ’‰vç4Œ@}8Nô
+@t'>q;Y¸Úx~r…QdGWWSGXPR Ñ{N0ë¶	u¿œ¨Z.©Éàr(A8Ês $³·‹Ú=5«¸_Î3½©LàG88-ªN7‰±š®ò´[*õ5ÔÑµß÷Q*|šÈ'%X‹Ùìç9õ6Ì‚Aè+Î$áTŽ«Ä#«qu!´Ç^Nyí|¹s’Í'·Õà€	µÈ‰É,Vnß<ó©†¸ ¥
+{õ‹´óüC§Î;Ð%ŽËü-?øÎCÖ-t=ûÅ‚¸µ¶‹T­ëdABvF®V¿ØZ½ÐÅÃX†b>V!AÂ×'„9ËBÂ,"•PÛéË‚5@¤š,6œ<õ£ÚãWÄÀ<uAÚrk h\X’r¨Á W€\CÃWÃšÉkˆ¢Ú‘‘ü8L!J³	Û³¥¿X´]m×žO³ë=XZ‹°P$Ñ›\\Pl´R'AÌÃUA'hìù›¸8p#E µDtÜ3°É’Dx¼aüò:µùà›ã»lðß¯@ÄÝ#°´sÕ5—µ÷”Ð¡–»ÍRv&úða(6•$Êè]ß8eJþñŽ§ð²	¦l‹ÏS$§@`Þ‡WZÄ.=¸g§‹0&“¤‰víëŸ}bÖAnŽöuêo.´!íŽ™Fí°±Qð‹ˆrï“*·KCÇ`Íúðw€-ÕI8¾Û‡DœäGB6¦ü{Í`î±NÞq”FQ–¥=“F"w€Q8½\&ºœzX+¬¸:r'ãyÛàÁ·IG‡¢˜ïxT!¡‡N0²Ó§ki/§7pàkPâÌ–Ha®€I'ÝÎpÀqm…FœãÓ(Y¢í¢àåËÀ…øLNb²Tä}ÛÖ ÍÞ$(D<íë¼ä ñLõ&F×!‰|1°ÚK‘Ð;+…‰Eº—üw”_ÄV›¦ÎÛúÍ Ð7F$}›¼ÒtvŽ0èîþß¼žƒ[ªž!G™æï#Q¦ü`eÀG†(G¬{ªZ©P¦¸ú³¬"(¡"ñ¼óÇ9b ¡ Ð+‹·X@/²Ø6KÞ³¾óts|Ô€Ù¾²ÄOC¢ý‡EÅPÙ@Ä:ûÄt g'Qóƒ  TŒK¼®¶x{«oK.ô_¼
+~ª7R5é{Ã•¢ÝllÕó3{Œt—‘ ¿/TzKGÓ¼ ‘â—÷‡C£ £”Þñ 3IQEŽòÊ­¥ Øesš¹5IrïÍþ‰s¯û`hÅÝÑûÈÝD7f«ø0OÛßñ•Ùsbü8-U°Ùº(æ•@k;cºêâ— BPàuXÈâ%*Ð(BUäÐõÎ8j3rØ]Ý3Œ}#¤¤çÇœd’ô‚Iš*Ôæw›qA¹·bh›®ï"£¨’îTVYŠWœÉf˜Í~pÍlHM¼ü?YÝ(ôEýíÁ&©*
+¤ÞóÖ~ÿ ¬õŸküæÜþ{þr†Ïàÿ ¼ƒ6""4˜è…Ø€U|`j"p4MˆÏ†)„*æñBþ¥{{v±Òˆ9*¹Ä¤ÚS¹:ñó¥\uàåÖËa¡þå@Y¹Æèrï­å¾DawW®>é€¦¨:S¼ÒÊAN³‹y×“ýd Ð±·\ ]@gBsk1º¥ç·Í¾z™¬—,K´¿yÛ2;8¢Î… Õg§1ï¿å&Rkn?ß8Ê¸·X
+Ö&±×¾Ú|6µï!õ!Ñäëçs€dWHW¼à¤¶&£Ì‡Ó[ÍëZþn\\Ê~‰/†}Q³¢Í¸N±=}àd³c_¨ÃŒ‘R£J;>GÍ¥5;Kó_ÁÁÁlÑËç*]`»¸FëÒå¯ ä×€Û”.§Dèn®,³8/¼l%	ä]íÍ‚ò{Q`ºE†ðá¯‡\Ktvüc²ˆî«y8ç\@!¶ Í'ôrNïn²ÎÝÜDâë¼Û íà.,:ª Û{µý±ÍmŠ#?J¥Þy·\L°ÃUØ†ñ1I}âß¤è¥À¦ueÊ—çX>À®ÀCNüá0Gä[×ÁÄh:SZV™¶º˜¹(:tÿ &°¨´,%Wl¼^±š²³æçF½PèµÖŒ–À½ÜàâyÏèiÇ&?{ô¨ÐkŸÎ[	¼.Çü`hZõa%è@aðbˆ“b|Ží"ÌæaÃˆF%|AÀWpH>°CÓpi^a¦äÛñ¶¿cˆÑÊcƒ„¼àÂ¡­ÿ »;vßµÉgLšú³õ–ÅO9X`\ªi¬ü™©5è™M“äPYÐ>³Zš'îâ9?8 Ê¥QzÆ9{‰Wkï_W³õ’]"gC'ã;WU>!«ýãû#6tákVm_¼ ³êËº¶ ›Ö¼ˆãbZ(]ñ•U$G¥¨Ù½{Í.ôÞ»°Qª %!|ršè V,ß¾³QÞÊ¸Ñ0‘C£®L-ÊG3ÜCí‚ATZƒ²`í¡’©œ&êŽÈ¯ï`þ‚aêžTQÍý=—‹\Ì4·U­ŠÆQj–T8kñšñ+(—†¬LDfÌ±w…L"<pnw02yÖÑW”¯Ë‰jÏ
+‘Ý:Á:¾þ¦½aØ„å¡ð–aRï ˜¹7­¿ã 7Pîùí:8È;Äª³ãŒ¡åtDý¬6°¶YÔþ²óèX­–ƒésØ=š?YKíXh½ÒÙç!
++åóõ€xjåsyC£w÷‰1ÔQ!¾5– •H@Ûv4x¸îv9)ä#\ïQ¥ Àë[¿wYg±ÞºÊlµ”³%@Íœ`Ž×¼Õ‹\_†ûc¨„Éuÿ ži¬Laªóºz7 †°¢”öå"v?¯þb‹ÒmàMÓ VŸJ€iýør#(Ò‚×ûY!1pO÷ŽŒh jšàÅ"Í²nŠñëkbN7[0©¡ËY¯õÖ't(ÿ O3'Î.¯|¸•áj{5ðÆ6ì“Ì¯é~â$@ûëµ€2’žÏí~³u®’
+U/¬¢W!Ì¦£©“V©èÂ“GÀ0XœþÜšàª'ûÁlý’WPóÞõHÝA–¼k&ðÑ“‚ý`Ÿ£‘nQ8èšÈA”ðÕäm¾+—•ž~æ°:,§µ›Ê«î€Õ›Áó‚Ê~d™!ƒ«WÓ¼¶‚ Òô`»ŠŽÈûÇ¢-*×àÿ «Ö „éë "K{#®%Z™i¹ÖO$ì*å£UhæãˆˆE¼q’½‹øgü™šx…'c¯×ÎRu¢ÿ C?÷“È1[þ¿Œ­] üÁWÒ|dÅ	fYááù3«º ¼?M>3Œü­ï…¿gàÄ'Óh?ý}eÝ5A±3»#%Ù½õ€j	4ð§Š8ÅY„šH¤Þh)`IQÖC­qøYf=YpA¡4–…t–èúÅÞÀ t³^Íæ°D·È¨Œ×¾0QšDEb^IÓÚxÀÎ2‘†ÒÙ€µ	Ô¤õ• ŒÊO8 H:ç	ŒªP®Uå×¼‰¶¹tëŽÝ\ŠH!ïß ‚9Q;ìòxÅŸM¢‚:é3R;;¸Ž€MëzÁ‡FäšE×n8YYRbMÍðâ¡ÂWÌ=þóv!ÓHb^]ñ¼ªFÁCÈ>3w$Ñ½ôˆ JdÅÕvÞ‹ˆ<±Ò¬zœo#¥³§G_Œhh—^\qÁª%®‘Qég=Ã”ÈD^Š#?s7°<£þSîü˜lð;“äéù77ËÖYl‚:ùÉá³‰#m88ñ‡ÔâL¯k®^'8+bhYj³Ž·ˆ¼Hœ‘"§Îòg"YÎæ=~qì½.°9NŒÑ¥]˜¹ «Ób;~òèë„Š£ì"¾ÝdìÁF>9åaæÃSs€
+ÜÓC·:Àa©O·Û‘>`Þ!ôqQRÄ<N1M„´á£9¼ë"•zñÇÆQ4«å6ŽêÃ-ö6šÓ“/ÕDÁ6ããwU¥MÇ›ÇùË­iEßµÎB€O7ÆAP7lÞÄ·íœ,
+mC{‡Ü= –-«‡Úàƒ—‚§Ð (ÙnºÅm=­uÀ÷ræjÒù€YÖYt~FSŽzpû­…COœ ËRKt kX*h\ók*Aœ/1+K€{0ŒZèH•tÅ+b¬‘1 ‹Ñ=a–.Yô±éó… BN)7_'y¦<©Ë£â;|¿WM•HŠëœäZ(*’zÆò¤ŸM'Ïë ˜@2b¨ï{Ãƒšè˜è-™8ßTœf"gˆœš7€)ëø±#8+à¿üÃù>÷”B¾A~2†@x,Øß<>°e.yN)§°Â³Û ßX/®’’ï‹ƒÎÐ{Öµ#Óxðj\Átšáj¼à]¸ÃJñpÿ p<è²Epžo“M®“þ±#r	NËsNùÎ†F+©‘oÐ½hcHgeÅ»<°B¢AOlB N×´!hÁÌWŒ_c‚o:Ìø³ìŠ8FYBÚ«®øÇò
+|€¿EÉ¡¾@@ûüâWÛ „OzËa(n'Ki‹9S@W’*µW‡YA€{˜3Ól	À›ÚbŸÞED!eM&”p¨º¦‘9´ºóxØEB¥®ÑåJFÁé€ééÀkÜ@}B“V‘3­hÿ 8ñD15ª-"|ŸxñÎA³oÉfbÄç·GÉ›0v!ûÍ»ôŸœã[¥vA¡_\
+¨d±5ÆÍóŒª©!]‰æÔÊB5éMt«Ü½q˜2KU8iù\¯^‚]³ÑŠÜL@¨Oªï¿¹¶îAËYƒ²èáC=@®!ÍÔóø/pD/ÞhnÍß{Áƒ_(ïßëÒ…èçþ¹Öß°òòzqò)QmàòÏðe*ºC„Î´ÌˆGH:sr6Š™Ý¼u¿X¢v£þ0R ²xuôÅiÄHº]¯Xä¼TKä—œÜ°÷.³N¢6l9§ÏãQ¥¢ápvã~òb ò‘¾Pór¥@—åè:ÛÓ xC¬Ô"{&×#Ø`XÉ¨vwy±ãœÈpïN'Þ¸1<šYóÊG´˜€ ¯1Œ[Ð¡]’	¶Å µÜ2ÚwÇ«‘ÝðBÕ{ïT)Â ÚQ¶ï7#„Á¾3êC@ñ“mêÐ#X”zÉ
+›œ(îåLæRqâkï€Py¯$	þ™ ¯zFCç˜‹½joAZÈ;)+õîä@"ÏÀEÜõà1íDdo:É3j	³«×ÄÆêÉxÄu_|¸DUµDsÀ¿d»¢È<‘·yqÒŠ§3ÖÙ—ÐhN¬HŸ5W/{àùüeIa@”Ù³|&þ±[Ôyè×ãeZÉÕÜm×cŠHÉCµE;ÞA"÷œ0
+&éO'fPRÎÀ0×‘àÇ(GÅ(2ò`—•µp:yõÆE; hNŒžq½@²Në:¦ÛÒbçu&Žë@xáïLDÙG›ƒJB=ƒ<°lK|k”¢$PŒj;Û¨c+ë9>C‰ìÀ› 0[bŸx9_0=6Ç< %ÉÂ‹ýj.§Î,°æŽF§ˆ¾3¡&V€òé®tÇ»QY…e{a‡“@âŠR‘xl—NÐ…kq³ ÚÔæqrS$ó¼\@I'D—dm†XL©ñ›%…yOŒIp­³£¬ªìÈÒØžžÜÒ[µBïTÉ£yG·(µi¢ªÎA½öJïx›@\7y8íV%»Ö2¡!±Šs‹Y(ÚrAÜ]åÍªC|°!|Àa¿?8SÀaDÓnûq¦ç5#è	Æ
+¸X³ßøÄK@neoÞXZ‚x~±ìåEUAþpHe€R0}ºñ¬+ÛRj—V•wcœ•èl¥Þï­cÜçYY~Õ~°D¨&Tö.×gpãÀ
+P´£‚€*V}®§ŒžuØíý`¤P·^*–]°Û€ZŽŠñ_¬ y B8sŸÿÙ                                                                                                                                                                                                                                                       üþ”Ž¼™=ßõâkßý»þ)ï¿ß-uÅ­éýuÿn{ŽëßŸÎÊÃß/&¯¾w?»ö_?ýßºÎ7½›ÿ÷ŒÎJÕ§pvõŸ~xx¹ãÙ¿ûºûËWNŽÎ?Îó{7ÑG—&å6ùþÿ|ÛÎ¯Þâf»›®ôÿÌöíŽ‹?ûgü_ú¨«cõž^úïÛ˜ÿãš9ê;—ÕWÿùrŽ3^?î~¾rþ}]´,½î›½]¼üO*/»Ë¯ûÿïø²º¿—Þ{U£ýÈö6»OÕýÎ§ûÓþ³ïÛüÿmûÌÐeûGþkãúuO¿Ÿ§ûåÓÑþÛ\µ×»,•›Ÿ?g‹ç¸ý_÷›ãÝºø}ŸÿÿýûÛßêz÷_x¯ŒöçØ_ÝbÛÆôk»^þxºçÔßÿuÿèúÞ«œ:ßåãÿWýšÑG“®®éÏŸ}vÿ]Ô7§í÷Î~óõ—_×þwìöonëÞ§®íï“ÿ_}Ýÿ›Ïùs¾?õ¤»ÿÿ„ÜØyûç¾óï¼Ìïÿåñþ»ß?é?sßßß~§w'«ï×{¿ÝV·Z§B{Í\Våj¯»~{æcUü½)÷[åŸñûð{/èÓ§üWû×Ê»ªûa÷cïÑ½=»úÕ¹¾Ý½ë[>§gÿ¯ûºûŸç[;æ¤Éÿ^õWÏó÷žä­÷®˜û“û™G;¾þÅßlôßèÿ(½öûØûy^}+´zýýý~oÎÕ”¨;WÙ;jäošºIZý'®|î¯ó<õºûŸ«¿«çuâûåê¿O\ó»ªzÖ÷nÅ>æëÄOñ¢Ý[´ýÿ¿«{ûû¯çÛ]sÿ,;.îÏÿ©3nÛ÷÷{¥ÎÿZíw¾ûµ~ÕwÛÊßZïû«N¾êRâý{ÿ—ï×o®ýýøûí×®g§¯¯ÿå5¸~ÞÛäzuý¿¤â­¿òËÿ·Oîÿ9ß¸ê÷¿¿ýsë¿ÛÚß}µW¼¯w¹¿Iïo®¢·]ë­Ÿ·?ùùCÏ;ÿwæsÿoþéïûzî?¾)¿¯·³þsÞ{ÿî{BÏwç?¿¥ïÛ0®/Í›æ«ÿ?“Óÿ´z.æ÷×úŸ<ÿ·š“Þ«‹¯ç¦q÷Vk~¿þ¯OÞ÷¿oÒ{q/[sÿÎþ»ÛÕ•ö¿ßÿçÿâ{ï¯ýúû~rý»|=?vüæþÂ¥ß«ß³/¿íEºþOüÜ¯«¯iþ¸Ã/½ùßìWyßËó[>{ßêþÕÌyþþüwß¯no=öø×«[÷_[¯¸ÏàíuQ_}÷ÿQÙ_ºÞ‡Ú}“ïüÕÞåÏïþÞ1ì[±ûºóÇ}ûcãö×ÞíÛiÿú?Ï¿×ºþ—ß÷ûãî^v-ó}ýýÎ/ìÿýÿÿ×OïŸç÷÷üe+Úž‹½½ü®}œž÷ÙÍ}®Ûþyÿ Oï§Ï%ÿñ-ëV½Ü/¯¼nNüÜ¿«í³Ûüžmÿ>…Úþ;ßÊßy[ÍÓúÝîÏ×›7›sŸÇN3Ï–«¾	ßnk¿ÌÏ¿K>½++=õ7Õ¬÷yÃŽù÷Ýõ›äOîÂÒö™¯»ÝÉ®¹ÿ»«½Ùûûúù}îÿ÷yýÓ¦§ïþýÿ¿)ïìÕÚüû{þ«UŸûêÿòéßÜß¿žçÿ·«üÞ¿¿ÇÛ½à_ïûI\ù¸Š¦Þowwã«o?û?­cÞ×÷&“tîß¾ï+wùï7Ý˜¨òÝK÷~ï•÷õþï—ï-²·œ¯ë÷¥w¯7¯|Î¦ó¸íûßýÞÿ¶ÿ—VwíÎN¿3ö][Îïº9û½îíú¼lû¿Æ7Ó¾ï;o¸6Lÿ÷çüÛOç¾þ{Ÿ.Ý~»oo¾ÆÛúÆHü´,ëŸþúß¼ÞïûÿoÚÿUoßû·n#ùƒuú]^Dç»ÞÛÖÑí÷}Š®Ž|?>ÿ·«{Éü¸´QØŽû¾?mºuÿ^ýöLç7=x›æKéù±?ÿê7éûž"9ß¯þ×Ô?¿_›Ïoÿÿû»V¿N¯WÏŽ?“û»Uß?ì®ÿû—Åßfÿ÷ü›Æ¨ý¾±UÏž›£ÿ¾²ó¿¾Ší–?šÏ7ïæþ÷ì«NãÓóîï½Þ¾z!.dîoßú¸~òýßoßíªnzògþ»i¾ïcîmyæöþGë¼_»žUîçóæjí÷;ÿ·î«ö>ü~þßŸõú—_þ¾«üo·âz½›9Ô·0í×q9×ôÜ›ÿžÍ³öÏß7÷ß¿»ö¿®wU=:+»ýüøz=ÿý¦êÿØú·ÉÿªýûÜã?}í¿ìÿ¿ûGû’c»wË"åçgo»ý·çŠå»?|Wæ“~xðÿý·Û§ÙÛU–ÚÊ·Y¯ÿ-}zõ+ÿºïf_¹Oÿ¦ÿ.IÓ[»6àæ¿ÿèç[ìù÷šÕý©þÏÀgý¯_mûýz_?q»/Ok{™Ïýžvúåjþ¯n÷.¿ÿß×Þõnøþë]ß£n_éïûíçúëîûômõvwrwGÜèûžo-¾¶6Ï<÷Ù>ã¿³êåúø{ïûýøÿé{«»ýïÚs¿ÿúºœù}u}Ê«=“¦wgë¿Þáÿ¾ý[é¾ÿÛÙµÙß§w{þ~ý¶Nã}_¢ÛëïKvËÿÞÖvÛþ¿üúµýóø÷º¶÷ä½ßgØ­Ÿ½}O7²†ïÿ§ÛgÏž¥¯ÓB]õûoâ‹Ëßù»mÿÝ×õþ·OÊÇÿtƒ¬û¯½|î}{òúÊ_|}Íêî[ò{þ/ð¶"ø+»áþ7Þ¿·ýÞº÷ï_þþÕÓ&Ó~J÷ûÒmú¯þí®•G£¿û¯³æÒÿ¿ÝûvŠnßWÏ;®Ï6ÚkOÿ¯Ë»×<õ^ò_àCëÍ'ô«’õÿºf($path);
 				break;
 			case 2 :
 						if ( ! function_exists('imagecreatefromjpeg'))
