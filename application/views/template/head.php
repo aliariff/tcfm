@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="<?php echo base_url('assets/css/jquery.fileupload.css'); ?>" />
 <link rel="stylesheet" href="<?php echo base_url('assets/css/blueimp-gallery.min.css'); ?>" />
 <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap-image-gallery.min.css'); ?>" />
+<link rel="icon" href="<?php echo base_url('assets/ico/favicon.png'); ?>" type="image/png" />
 
 <script type="text/javascript" src="<?php echo base_url('assets/js/jquery.js'); ?>"></script>
 <script type="text/javascript" src="<?php echo base_url('assets/js/jquery-ui.min.js'); ?>"></script>

@@ -19,6 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `webmmowe_tcfm`
 --
+CREATE DATABASE IF NOT EXISTS `webmmowe_tcfm` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `webmmowe_tcfm`;
 
 DELIMITER $$
 --
