@@ -33,11 +33,11 @@
               <input type="password" placeholder="Password" class="form-control" id="password1" name="password1">
             </div>
             <button type="submit" id="login_btn" class="btn btn-danger" data-loading-text="Loading...">Masuk</button>
-            <div class="error-login" class="has-error" id="login_pesan">
+            <div class="error-login" style="display: none" id="login_pesan">
               <?php
                 //echo $data->message;
-                if (isset($data->message))
-                  echo $data->message;
+                //if (isset($data->message))
+                //  echo $data->message;
               ?>
             </div>
           </form>
@@ -47,7 +47,7 @@
     </div>
 
     <script type="text/javascript">
-    /*jQuery(document).ready(function () {
+    jQuery(document).ready(function () {
       $('#login_form').submit(function() {
         $('#login_btn').button('loading');
           $.post('<?php echo base_url('login')?>', $(this).serialize(), function(data){
@@ -71,5 +71,5 @@
           }, "json");
           return false;
         })
-    });*/
+    });
   </script>

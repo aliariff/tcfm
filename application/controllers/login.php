@@ -21,31 +21,31 @@ class login extends CI_Controller
        	$json = new stdclass();
         if($this->sesilogin_model->login_admin($username, $password))
         {
-            redirect(base_url('admin'));
-            /*
+            //redirect(base_url('admin'));
+            
             $json->sukses = "admin";
             $json->pesan = "Sukses";
-            echo json_encode($json);*/
+            echo json_encode($json);
         }
         else if($this->sesilogin_model->login($username, $password))
         {
-            redirect(base_url('user/dasbor'));
-        	/*$json->sukses = true;
+            //redirect(base_url('user/dasbor'));
+        	$json->sukses = true;
         	$json->pesan = "Sukses";
-        	echo json_encode($json);*/
+        	echo json_encode($json);
         }
         else
         {
-            $data = new stdClass();
+            /*$data = new stdClass();
             $data->message = 'Username/Password Tidak Valid';
             $data->message_type = 'warning';
 
             $template_data->data = $data;
 
-            $this->load->view('template/index', $template_data);
-        	/*$json->sukses = false;
+            $this->load->view('template/index', $template_data);*/
+        	$json->sukses = false;
         	$json->pesan = "Username/Password Tidak Valid";
-        	echo json_encode($json);*/
+        	echo json_encode($json);
         }
     }
 

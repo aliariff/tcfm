@@ -325,6 +325,7 @@ $(document).ready(function() {
               }
               $('#pesan .isi_pesan').html(data.pesan.pesan);
               $('#pesan').fadeIn(500);
+			  $('#best_team_btn').button('reset');
               setTimeout("location.reload()", 1000);
             }, "json");
         });
@@ -376,6 +377,7 @@ $(document).ready(function() {
               }
               $('#pesan .isi_pesan').html(data.pesan);
               $('#pesan').fadeIn(500);
+			  $('#clear_btn').button('reset');
               setTimeout("location.reload()", 1000);
             }, "json");
         });
