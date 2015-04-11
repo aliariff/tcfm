@@ -7,13 +7,13 @@
 			</div>
 			<br/><br/><br/>
 			<p>
-				Teknik Computer Football Manager(TCFM) is a football managing game developed by IFITSBDLFinalProject Team. It was available for play via tcfm.webmmo.web.id. A mobile application will be available for iOS and Android. In the game, users take the role of a football manager, managing a team. The players manage their team by purchasing players, upgrading the stadium and keeping the club fit in practice. TCFM is the first sport massive multiplayer online gaming from Teknik Informatika ITS Surabaya.
+				Teknik Computer Football Manager(TCFM) is a football managing game developed by IFITSBDLFinalProject Team. It was available for play via tcfm.etnies.web.id. A mobile application will be available for iOS and Android. In the game, users take the role of a football manager, managing a team. The players manage their team by purchasing players, upgrading the stadium and keeping the club fit in practice. TCFM is the first sport massive multiplayer online gaming from Teknik Informatika ITS Surabaya.
 			</p>
 			<p>
 				The user starts with 40,000 coins.
 			</p>
 			<p>
-				<b>Play -</b> There are four types of leagues to play: Intertoto, Europa, Champions, and Super. The lowest class of the league is Intertoto League, which will contain some teams with some bronze players. After winning it, players are promoted to the next league—Europa League, Champions League, and Super League. The World League allows players to play against opponents that are not their "friends". All leagues need the ticket called Match Credits. Players earn match credits by waiting for countdown clock.
+				<b>Play -</b> There are four types of leagues to play: Intertoto, Europa, Champions, and Super. The lowest class of the league is Intertoto League, which will contain some teams with some bronze players. After winning it, players are promoted to the next league Europa League, Champions League, and Super League. The World League allows players to play against opponents that are not their "friends". All leagues need the ticket called Match Credits. Players earn match credits by waiting for countdown clock.
 			</p>
 			<p>
 				<b>Manage -</b> Choose the starting eleven of the club, release players and change the formation of the club.
